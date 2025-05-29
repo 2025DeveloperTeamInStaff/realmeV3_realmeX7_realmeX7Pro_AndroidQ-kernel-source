@@ -1,1 +1,5 @@
 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/tags/android-10.0.0_r35/clang-r353983c/
+
+ make ARCH=arm64 CC=clang CROSS_COMPILE=/root/kernel/gcc49/bin/aarch64-linux-android- CLANG_TRIPLE=aarch64-linux-gnu- O=out AS=llvm-as NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip
+
+https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+/refs/tags/android-10.0.0_r35
