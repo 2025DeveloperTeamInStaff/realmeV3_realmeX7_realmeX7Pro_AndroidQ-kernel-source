@@ -2764,8 +2764,8 @@ int mtk_dsi_dcs_read_reg_v1(struct mtk_ddp_comp *comp, void *handle, char *param
 		 * 0x22: dcs short read response(2 byte return)
 		 */
 		if (packet_type == 0x1A || packet_type == 0x1C) {
-            recv_data_cnt = (tmp0 >> 8) & 0xff +
-                        ((tmp0 >> 16) & 0xff) * 16;
+            recv_data_cnt = ((tmp0 >> 8) & 0xff) +
+                        (((tmp0 >> 16) & 0xff) * 16);
             if (recv_data_cnt > 10) {
                     DDPDBG("DSI read long packet data exceeds 4 bytes return size: %d\n",
                           recv_data_cnt);

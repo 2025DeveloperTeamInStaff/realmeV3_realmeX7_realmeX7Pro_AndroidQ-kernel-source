@@ -1,3 +1,4 @@
+$(warning "Executing device Target Product $(TARGET_PRODUCT), target dev $(OPPO_TARGET_DEVICE)")
 ifeq ($(TARGET_PRODUCT),sdm660_64)
 DEFS_PLATFORM = -DCONFIG_OPPO_FINGERPRINT_PLATFORM=660
 else ifeq ($(TARGET_PRODUCT),msm8953_64)

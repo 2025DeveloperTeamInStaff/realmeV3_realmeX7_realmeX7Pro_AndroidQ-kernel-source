@@ -1,6 +1,6 @@
 #ifndef __REALME_POWER_HELPER_H__
 #define __REALME_POWER_HELPER_H__
-#include "../../../../kernel-4.14/drivers/power/oppo/oppo_charger.h"
+#include "../../../drivers/power/oppo/oppo_charger.h"
 #include <linux/proc_fs.h>
 #ifdef CONFIG_ARCH_QCOM
 	void power_helper_set_apss_master_stats(void *master_stats);

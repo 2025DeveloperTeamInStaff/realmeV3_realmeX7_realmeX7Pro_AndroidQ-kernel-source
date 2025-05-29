@@ -1089,7 +1089,7 @@ schedtune_irq_work(struct irq_work *work)
 }
 
 static inline int
-schedtune_init_boost_kthread()
+schedtune_init_boost_kthread(void)
 {
 	int cpu;
 	int ret;
