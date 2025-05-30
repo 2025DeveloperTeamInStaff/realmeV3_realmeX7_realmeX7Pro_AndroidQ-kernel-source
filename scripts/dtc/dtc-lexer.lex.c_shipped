@@ -300,9 +300,9 @@ YY_BUFFER_STATE yy_scan_buffer (char *base,yy_size_t size  );
 YY_BUFFER_STATE yy_scan_string (yyconst char *yy_str  );
 YY_BUFFER_STATE yy_scan_bytes (yyconst char *bytes,int len  );
 
-void *yyalloc (yy_size_t  );
-void *yyrealloc (void *,yy_size_t  );
-void yyfree (void *  );
+extern void *yyalloc (yy_size_t  );
+extern void *yyrealloc (void *,yy_size_t  );
+extern void yyfree (void *  );
 
 #define yy_new_buffer yy_create_buffer
 
