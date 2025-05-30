@@ -7,12 +7,8 @@ CONFIG_CROSS_COMPILE="aarch64-linux-android-"
 #Runtime info and framework compatibility matrix are incompatible: For config CONFIG_USELIB, value = y but required n
 # CONFIG_USELIB is not set
 #endif
-#ifdef VENDOR_EDIT
 #LiYou@BSP.Kernel.Stability 2019/10/15, modify to increase kernel log buffer to 1M
 CONFIG_LOG_BUF_SHIFT=20
-#else
-#CONFIG_LOG_BUF_SHIFT=19
-#endif /*VENDOR_EDIT*/
 CONFIG_UCLAMP_TASK=y
 CONFIG_UCLAMP_GROUPS_COUNT=32
 CONFIG_UCLAMP_MAP_OPP=y
@@ -106,11 +102,9 @@ CONFIG_MTK_CM_MGR=y
 CONFIG_MTK_THERMAL_PA_VIA_ATCMD=y
 CONFIG_CUSTOM_KERNEL_IMGSENSOR="s5kgm1st_mipi_raw ov16a10_mipi_raw s5k3p9sp_mipi_raw hi846_mipi_raw gc02k_mipi_raw ov02b1b_mipi_raw s5kgw3_mipi_raw athensb_ov32a1q_mipi_raw athensb_hi846_mipi_raw athensb_gc02k_mipi_raw athensb_gc02m1b_mipi_raw cake_ov13b10_mipi_raw cake_s5k4h7_mipi_raw cake_gc02m1b_mipi_mono cake_gc02k0_mipi_raw athensc_s5kgm1st_mipi_raw athensc_imx471_mipi_raw"
 CONFIG_CUSTOM_KERNEL_CAM_CAL_DRV="BRCB032GWZ_3 GT24c32a cat24c16"
-#ifdef VENDOR_EDIT
 #Meilin.Zhou@BSP.Fingerprint.Basic, 2020/06/13, add for Widevine_write_key enable.
 CONFIG_MTK_SEC_VIDEO_PATH_SUPPORT=y
 CONFIG_MTK_DRM_KEY_MNG_SUPPORT=y
-#endif
 CONFIG_MTK_CAMERA_ISP_RSC_SUPPORT=y
 CONFIG_MTK_CAMERA_ISP_DPE_SUPPORT=y
 CONFIG_MTK_CAMERA_ISP_FD_SUPPORT=y
@@ -178,7 +172,6 @@ CONFIG_MTK_PICKUPHUB=y
 CONFIG_MTK_DEVICE_ORIENTATION_HUB=y
 CONFIG_MTK_MOTION_DETECT_HUB=y
 CONFIG_MTK_TILTDETECTHUB=y
-#endif /*VENDOR_EDIT*
 CONFIG_CUSTOM_KERNEL_SENSORHUB=y
 CONFIG_NANOHUB=y
 CONFIG_NANOHUB_MTK_IPI=y
@@ -186,10 +179,8 @@ CONFIG_MTK_COMBO=y
 CONFIG_MTK_COMBO_CHIP_CONSYS_6853=y
 CONFIG_MTK_COMBO_GPS=y
 CONFIG_MTK_COMBO_WIFI=y
-#ifdef VENDOR_EDIT
 #Chuanye.Xu@PSW.WiFi.Connect.Wapi.1194114, 2019/09/26, Add for enable wapi
 CONFIG_MTK_WAPI_SUPPORT=y
-#endif /*VENDOR_EDIT*/
 CONFIG_MTK_DHCPV6C_WIFI=y
 CONFIG_MTK_GPS_SUPPORT=y
 CONFIG_MTK_GPS_EMI=y
@@ -305,18 +296,14 @@ CONFIG_PPP_SYNC_TTY=y
 CONFIG_INPUT_EVDEV=y
 # CONFIG_KEYBOARD_ATKBD is not set
 CONFIG_KEYBOARD_MTK=y
-#ifdef VENDOR_EDIT
 #/* Li junhua@EXP.BSP.Kernel.Driver, 2020/01/11,
 #** Enable long press two key reset for 6873*/
 #CONFIG_ONEKEY_REBOOT_NORMAL_MODE=y
 #CONFIG_ONEKEY_REBOOT_OTHER_MODE=y
-#endif
-#ifdef VENDOR_EDIT
 #/* Li junhua@EXP.BSP.Kernel.Driver, 2020/01/11,
 #** Enable long press two key reset for 6873*/
 CONFIG_TWOKEY_REBOOT_NORMAL_MODE=y
 CONFIG_TWOKEY_REBOOT_OTHER_MODE=y
-#endif /* VENDOR_EDIT */
 CONFIG_KPD_PWRKEY_USE_PMIC=y
 # CONFIG_INPUT_MOUSE is not set
 CONFIG_INPUT_TOUCHSCREEN=y
@@ -324,7 +311,6 @@ CONFIG_INPUT_TOUCHSCREEN=y
 CONFIG_INPUT_MISC=y
 CONFIG_INPUT_UINPUT=y
 CONFIG_TOUCHPANEL_LATE_INIT=y
-#ifdef VENDOR_EDIT
 #liuchao@rm.bsp.tp.basic, 2020/4/30, Add for 20611
 CONFIG_TOUCHPANEL_OPPO=y
 CONFIG_TOUCHPANEL_NOVA=y
@@ -336,7 +322,6 @@ CONFIG_TOUCHPANEL_FOCAL_FT3518=y
 CONFIG_TOUCHPANEL_NOVA_NT36525B_NOFLASH=y
 CONFIG_TOUCHPANEL_MTK_PLATFORM=y
 CONFIG_TOUCHPANEL_MULTI_NOFLASH=y
-#endif /* VENDOR_EDIT */
 
 # CONFIG_VT is not set
 CONFIG_LEGACY_PTY_COUNT=16
@@ -538,10 +523,8 @@ CONFIG_EXT4_FS_SECURITY=y
 CONFIG_EXT4_ENCRYPTION=y
 CONFIG_EXT4_DEBUG=y
 CONFIG_QUOTA=y
-#ifdef VENDOR_EDIT
 #//yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 CONFIG_EXT4_ASYNC_DISCARD_SUPPORT=y
-#endif
 CONFIG_QUOTA_NETLINK_INTERFACE=y
 CONFIG_QFMT_V2=y
 CONFIG_FUSE_FS=y
@@ -569,9 +552,7 @@ CONFIG_FRAME_WARN=3600
 CONFIG_PANIC_ON_OOPS=y
 CONFIG_PANIC_TIMEOUT=1
 CONFIG_SCHEDSTATS=y
-#ifdef VENDOR_EDIT//Fanhong.Kong@ProDrv.CHG,add 2016/6/20 for kernel 4.14 exfat
 CONFIG_EXFAT_FS=y
-#endif
 # CONFIG_DEBUG_PREEMPT is not set
 # CONFIG_DEBUG_BUGVERBOSE is not set
 CONFIG_RCU_CPU_STALL_TIMEOUT=60
@@ -586,7 +567,6 @@ CONFIG_CRC8=y
 #/* LiYue@BSP.CHG.Basic, 2019/09/02, Add for charging */
 CONFIG_USB_POWER_DELIVERY=y
 # CONFIG_MTK_DISABLE_GAUGE is not set
-#ifdef VENDOR_EDIT
 #/* Baoquan.Lai@BSP.CHG.Basic, 2019/09/11, add for Joystick */
 CONFIG_INPUT_JOYSTICK=y
 CONFIG_JOYSTICK_XPAD=y
@@ -598,9 +578,7 @@ CONFIG_HID_BETOP_FF=y
 CONFIG_HID_PLANTRONICS=y
 #/* Baoquan.Lai@BSP.CHG.Basic, 2019/11/25, Add for cool down */
 CONFIG_OPPO_SMART_CHARGER_SUPPORT=y
-#endif
 
-#ifdef VENDOR_EDIT
 #/* Baoquan.Lai@BSP.CHG.Basic, 2020/04/17, Add for charging */
 CONFIG_MTK_ADDITIONAL_BATTERY_TABLE=y
 CONFIG_OPPO_CHARGER=y
@@ -626,8 +604,6 @@ CONFIG_OPPO_COMMON_SOFT=y
 CONFIG_OPPO_HVDCP_SUPPORT=y
 CONFIG_OPPO_SHORT_IC_CHECK=y
 CONFIG_OPPO_DUAL_CHARGER_SUPPORT=n
-#endif
-#ifdef VENDOR_EDIT
 #//Bin.Li@EXP.BSP.bootloader.bootflow, 2017/05/15, Add for oppo project
 CONFIG_OPPO_ARCH_FILE=y
 CONFIG_OPPO_CRITICALLOG_IFNO=y
@@ -643,13 +619,9 @@ CONFIG_SLUB_STAT_DEBUG=y
 CONFIG_SLABINFO=y
 #Add UID_CPUTIME
 CONFIG_UID_CPUTIME=y
-#endif
-#ifdef VENDOR_EDIT
 #tanyang@bsp.kernel 20200212 add for ocdt
 CONFIG_DEBUG_SECTION_MISMATCH=y
 CONFIG_SECTION_MISMATCH_WARN_ONLY=y
-#endif
-#ifdef VENDOR_EDIT
 # Xiaojun.Lv@PSW.MM.AudioDriver.HAL, 2018/7/13, add for TFA9890 ALSA driver
 CONFIG_SND_SOC_AW87339=n
 #Yongzhi.Zhang@PSW.MM.AudioDriver.Codec, 2019/09/27, add for SIA PA ALGO
@@ -658,19 +630,15 @@ CONFIG_SIA_PA_ALGO=n
 CONFIG_SND_SOC_TFA9874=n
 #Hefeng.Wu@RM.MM.AudioDriver.Platform, 2020/05/19, add for FSA4480
 CONFIG_MTK_FSA4480_I2C=n
-#endif /* VENDOR_EDIT */
 
-#ifdef VENDOR_EDIT
 #ZhengZhou@CN.NFC.Basic.Hardware,2714107,2020/04/13,Add for:5G-B device NFC
 CONFIG_MTK_NFC_CLKBUF_ENABLE=y
-#endif /* VENDOR_EDIT */
 
 
 CONFIG_MTK_AVB20_SUPPORT = y
 
 
 
-#ifdef VENDOR_EDIT
 #Guoliang.wu@Bsp.Group.Tp, 2020/03/31, Add for touchpanel
 CONFIG_TOUCHPANEL_OPPO=y
 CONFIG_TOUCHPANEL_NOVA=y
@@ -679,75 +647,52 @@ CONFIG_TOUCHPANEL_HIMAX=y
 CONFIG_TOUCHPANEL_HIMAX_HX83112F_NOFLASH=y
 CONFIG_TOUCHPANEL_MTK_PLATFORM=y
 CONFIG_TOUCHPANEL_MULTI_NOFLASH=y
-#endif /* VENDOR_EDIT */
 
-#ifdef VENDOR_EDIT
 ##Long.Liu@PSW.BSP.Fingerprint.Basic, 2018/11/19, Add for fingerprint driver
 CONFIG_OPPO_FINGERPRINT=y
 CONFIG_OPPO_FINGERPRINT_MTK=y
 CONFIG_OPPO_ARCH_FILE=y
 CONFIG_OPPO_DEVICE_IFNO=y
 CONFIG_OPPO_COMMON_SOFT=y
-##endif /*VENDOR_EDIT*/
 
-#ifdef VENDOR_EDIT
 #fanhui@PhoneSW.BSP, 2016/04/06, enable DeathHealer in release buld
 CONFIG_DEATH_HEALER=y
-#endif
 
-#ifdef VENDOR_EDIT //fangpan@Swdp.shanghai,2015/11/12 add the hung task detect
 CONFIG_DETECT_HUNG_TASK=y
 CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=60
-#endif
 
 CONFIG_EXT4_DEBUG=y
-#ifdef VENDOR_EDIT
 #//yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
 CONFIG_EXT4_ASYNC_DISCARD_SUPPORT=y
 #zhiping.li@hypnus, 2020/05/8, Add hypnus driver
 CONFIG_OPPO_HYPNUS=y
-#endif
 
-#ifdef VENDOR_EDIT
 # // Bin.XU @ BSP.Kernel.Stability, 2019/11/11, Add for oppo dump
 CONFIG_OPPO_FORCE_DUMP=y
-#endif
 
 #//yangmingjin@realme.com, 2020/05/19, Add for power debug
 CONFIG_POWER_HELPER_SUPPORT=y
-#endif
 
-#ifdef VEDOR_EDIT
 #Kun.Zhou@ROM.Framework, 2019/09/23, add for hans freeze manager
 CONFIG_OPPO_HANS=y
-#endif
 # CONFIG_MTK_AEE_HANG_DETECT is not set
 
-#ifdef VENDOR_EDIT
 #Hailong.Liu@BSP.MM 2020/05/28, Enable process reclaim.
 CONFIG_PROCESS_RECLAIM=y
-#endif
 
-# ifdef VENDOR_EDIT
 # YiXue.Ge@PSW.BSP.Kernel.Driver,2017/07/03, Add for enable lz4 compress for zram
 CONFIG_CRYPTO_LZ4=y
 CONFIG_PGTABLE_MAPPING=y
-# endif
 
-#ifdef VENDOR_EDIT
 #Hongyu.Lu@BSP.Secure.Basic, 2019/10/14, Enable SecureBoot Fuse
 CONFIG_MTK_SECURITY_SW_SUPPORT=y
-#endif
 
-#ifdef OPLUS_FEATURE_LOWMEM_DBG
 #Hailong.Liu@BSP.Kernel.MM, 2020/06/19, Add for dump memory usage when lowmmem occurs.
 CONFIG_OPLUS_FEATURE_LOWMEM_DBG=y
-#endif /* OPLUS_FEATURE_LOWMEM_DBG */
 
 #jason.tang@TECH.BSP.Kernel.Storage, 2019-10-25, enable EXT4_FSYNC
 CONFIG_EXT4_FSYNC=y
 
-#ifdef VENDOR_EDIT
 #/*Kui.Zhang@BSP.Kernel.MM, 2020-06-08, enable memleak detect feature*/
 CONFIG_KMALLOC_DEBUG=y
 CONFIG_VMALLOC_DEBUG=y
@@ -755,4 +700,3 @@ CONFIG_DUMP_TASKS_MEM=y
 
 #Hailong.Liu@BSP.MM, 2020-03-18, add for svelte
 CONFIG_OPPO_SVELTE=y
-#endif /*VENDOR_EDIT*/
