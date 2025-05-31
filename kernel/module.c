@@ -405,7 +405,8 @@ extern const s32 __start___kcrctab_unused[];
 extern const s32 __start___kcrctab_unused_gpl[];
 #endif
 
-#ifndef CONFIG_MODVERSIONS
+// #ifndef CONFIG_MODVERSIONS
+#if 1
 #define symversion(base, idx) NULL
 #else
 #define symversion(base, idx) ((base != NULL) ? ((base) + (idx)) : NULL)
@@ -1269,8 +1270,8 @@ static int try_to_force_load(struct module *mod, const char *reason)
 #endif
 }
 
-#ifdef CONFIG_MODVERSIONS
-
+//#ifdef CONFIG_MODVERSIONS
+#if 0
 static u32 resolve_rel_crc(const s32 *crc)
 {
 	return *(u32 *)((void *)crc + *crc);
@@ -3230,7 +3231,8 @@ static int check_module_license_and_versions(struct module *mod)
 	if (!prev_taint && test_taint(TAINT_PROPRIETARY_MODULE))
 		pr_warn("%s: module license taints kernel.\n", mod->name);
 
-#ifdef CONFIG_MODVERSIONS
+//#ifdef CONFIG_MODVERSIONS
+#if 0
 	if ((mod->num_syms && !mod->crcs)
 	    || (mod->num_gpl_syms && !mod->gpl_crcs)
 	    || (mod->num_gpl_future_syms && !mod->gpl_future_crcs)
