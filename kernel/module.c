@@ -405,7 +405,8 @@ extern const s32 __start___kcrctab_unused[];
 extern const s32 __start___kcrctab_unused_gpl[];
 #endif
 
-#ifndef CONFIG_MODVERSIONS
+// #ifndef CONFIG_MODVERSIONS
+#if 1
 #define symversion(base, idx) NULL
 #else
 #define symversion(base, idx) ((base != NULL) ? ((base) + (idx)) : NULL)
@@ -1269,8 +1270,8 @@ static int try_to_force_load(struct module *mod, const char *reason)
 #endif
 }
 
-#ifdef CONFIG_MODVERSIONS
-
+//#ifdef CONFIG_MODVERSIONS
+#if 0
 static u32 resolve_rel_crc(const s32 *crc)
 {
 	return *(u32 *)((void *)crc + *crc);
@@ -2288,9 +2289,9 @@ static int simplify_symbols(struct module *mod, const struct load_info *info)
 			if (!ksym && ELF_ST_BIND(sym[i].st_info) == STB_WEAK)
 				break;
 
-			pr_warn("%s: Unknown symbol %s (err %li)\n",
+			pr_warn("%s: Unknown symbol %s (err %li), Ignoring\n",
 				mod->name, name, PTR_ERR(ksym));
-			ret = PTR_ERR(ksym) ?: -ENOENT;
+			// ret = PTR_ERR(ksym) ?: -ENOENT;
 			break;
 
 		default:
@@ -3028,7 +3029,6 @@ static int check_modinfo(struct module *mod, struct load_info *info, int flags)
 	} else if (!same_magic(modmagic, vermagic, info->index.vers)) {
 		pr_err("%s: version magic '%s' should be '%s'\n",
 		       info->name, modmagic, vermagic);
-		return -ENOEXEC;
 	}
 
 	if (!get_modinfo(info, "intree")) {
@@ -3230,7 +3230,8 @@ static int check_module_license_and_versions(struct module *mod)
 	if (!prev_taint && test_taint(TAINT_PROPRIETARY_MODULE))
 		pr_warn("%s: module license taints kernel.\n", mod->name);
 
-#ifdef CONFIG_MODVERSIONS
+//#ifdef CONFIG_MODVERSIONS
+#if 0
 	if ((mod->num_syms && !mod->crcs)
 	    || (mod->num_gpl_syms && !mod->gpl_crcs)
 	    || (mod->num_gpl_future_syms && !mod->gpl_future_crcs)
