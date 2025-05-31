@@ -332,7 +332,7 @@ int cinst_reserve_memory_dump(char *buf, unsigned long long ptp3_mem_size,
 	}
 
 
-	if (str_len > 0)
+	if (str_len > 0 && buf)
 		memcpy(buf, aee_log_buf, str_len+1);
 
 	cinst_msg("\n%s", aee_log_buf);
