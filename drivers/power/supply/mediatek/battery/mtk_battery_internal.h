@@ -213,6 +213,7 @@ enum Fg_daemon_cmds {
 	FG_DAEMON_CMD_DUMP_LOG,
 	FG_DAEMON_CMD_SEND_DATA,
 	FG_DAEMON_CMD_COMMUNICATION_INT,
+	FG_DAEMON_CMD_SET_BATTERY_CAPACITY,
 
 	FG_DAEMON_CMD_FROM_USER_NUMBER
 };
@@ -303,6 +304,11 @@ struct fgd_cmd_param_t_7 {
 	int status;
 };
 
+struct fgd_cmd_param_t_8 {
+	int size;
+	int data[512];
+};
+
 enum daemon_cmd_int_data {
 	FG_GET_NORETURN = 0,
 	FG_GET_SHUTDOWN_CAR = 1,
@@ -313,6 +319,7 @@ enum daemon_cmd_int_data {
 	FG_GET_IS_AGING_RESET = 6,
 	FG_GET_SOC_DECIMAL_RATE = 7,
 	FG_GET_DIFF_SOC_SET = 8,
+	FG_GET_IS_FORCE_FULL = 9,
 	FG_GET_MAX,
 	FG_SET_ANCHOR = 999,
 	FG_SET_SOC = FG_SET_ANCHOR + 1,
