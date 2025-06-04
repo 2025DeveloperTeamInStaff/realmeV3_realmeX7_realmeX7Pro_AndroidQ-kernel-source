@@ -83,7 +83,7 @@ do {\
 
 #define bm_notice(fmt, args...)   \
 do {\
-	if (bat_get_debug_level() >= BMLOG_NOTICE_LEVEL) {\
+	if (bat_get_debug_level() >= BMLOG_ERROR_LEVEL) {\
 		pr_notice(fmt, ##args); \
 	}								   \
 } while (0)
@@ -97,7 +97,7 @@ do {\
 
 #define bm_debug(fmt, args...)   \
 do {\
-	if (bat_get_debug_level() >= BMLOG_DEBUG_LEVEL) {\
+	if (bat_get_debug_level() >= BMLOG_ERROR_LEVEL) {\
 		pr_notice(fmt, ##args); \
 	}								   \
 } while (0)
