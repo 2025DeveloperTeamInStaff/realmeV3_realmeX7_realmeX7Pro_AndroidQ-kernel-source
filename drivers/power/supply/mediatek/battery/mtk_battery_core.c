@@ -4263,8 +4263,8 @@ void bmd_ctrl_cmd_from_user(void *nl_data, struct fgd_nl_msg_t *ret_msg)
 		if (param.data[10] != 0 && param.data[11] != 0) {
 			//gm.show_ag = param.data[10];
 			//gm.bat_health = param.data[11];
-			bm_err("%s:SET_BATTERY_CAPACITY: show_ag:%d, bat_health:%d",
-				__func__, gm.show_ag, gm.bat_health);
+			// bm_err("%s:SET_BATTERY_CAPACITY: show_ag:%d, bat_health:%d",
+				// __func__, gm.show_ag, gm.bat_health);
 		}
 		//gm.prev_batt_fcc = param.data[4];
 		//gm.prev_batt_remaining_capacity = param.data[4] /10 * param.data[6] / 10000;
