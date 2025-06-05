@@ -304,6 +304,11 @@ struct fgd_cmd_param_t_7 {
 	int status;
 };
 
+struct fgd_cmd_param_t_8 {
+	int size;
+	int data[512];
+};
+
 enum daemon_cmd_int_data {
 	FG_GET_NORETURN = 0,
 	FG_GET_SHUTDOWN_CAR = 1,
