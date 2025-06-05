@@ -2703,6 +2703,16 @@ void fg_daemon_comm_INT_data(char *rcv, char *ret)
 				pret->output, pret->status);
 		}
 		break;
+	case FG_GET_IS_FORCE_FULL:
+		{
+			/* 1 = trust customer full condition */
+			/* 0 = using gauge ori full flow */
+			int force_full = 1;
+
+			memcpy(&pret->output,
+				&force_full, sizeof(force_full));
+		}
+		break;
 
 	case FG_GET_NCAR:
 		{
@@ -4240,6 +4250,37 @@ void bmd_ctrl_cmd_from_user(void *nl_data, struct fgd_nl_msg_t *ret_msg)
 		bm_debug(
 			"[fr] FG_DAEMON_CMD_GET_RTC_INVALID = %d\n",
 			rtc_invalid);
+	}
+	break;
+
+	case FG_DAEMON_CMD_SET_BATTERY_CAPACITY:
+	{
+		struct fgd_cmd_param_t_8 param;
+
+		memcpy(&param, &msg->fgd_data[0],
+			sizeof(struct fgd_cmd_param_t_8));
+
+		if (param.data[10] != 0 && param.data[11] != 0) {
+			//gm.show_ag = param.data[10];
+			//gm.bat_health = param.data[11];
+			bm_err("%s:SET_BATTERY_CAPACITY: show_ag:%d, bat_health:%d",
+				__func__, gm.show_ag, gm.bat_health);
+		}
+		//gm.prev_batt_fcc = param.data[4];
+		//gm.prev_batt_remaining_capacity = param.data[4] /10 * param.data[6] / 10000;
+		bm_debug(
+			"[fr] FG_DAEMON_CMD_SET_BATTERY_CAPACITY = %d %d %d %d %d %d %d %d %d %d RM:%d\n",
+			param.data[0],
+			param.data[1],
+			param.data[2],
+			param.data[3],
+			param.data[4],
+			param.data[5],
+			param.data[6],
+			param.data[7],
+			param.data[8],
+			param.data[9],
+			param.data[4] * param.data[6] / 10000);
 	}
 	break;
 
