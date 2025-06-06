@@ -116,6 +116,9 @@ retry:
 	return res;
 }
 
+static inline bool may_mount(void);
+static int do_umount(struct mount *mnt, int flags);
+
 static void mnt_free_id(struct mount *mnt)
 {
 	int id = mnt->mnt_id;
