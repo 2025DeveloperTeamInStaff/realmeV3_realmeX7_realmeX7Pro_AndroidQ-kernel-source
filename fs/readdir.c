@@ -173,6 +173,12 @@ static int filldir(struct dir_context *ctx, const char *name, int namlen,
 	unsigned long d_ino;
 	int reclen = ALIGN(offsetof(struct linux_dirent, d_name) + namlen + 2,
 		sizeof(long));
+	
+	#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) && susfs_sus_ino_for_filldir64(ino)) {
+		return 0;
+	}
+	#endif
 
 	buf->error = -EINVAL;	/* only used if we fail.. */
 	if (reclen > buf->count)
@@ -259,6 +265,13 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
 		container_of(ctx, struct getdents_callback64, ctx);
 	int reclen = ALIGN(offsetof(struct linux_dirent64, d_name) + namlen + 1,
 		sizeof(u64));
+
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) && susfs_sus_ino_for_filldir64(ino)) {
+		return 0;
+	}
+#endif
+
 
 	buf->error = -EINVAL;	/* only used if we fail.. */
 	if (reclen > buf->count)
@@ -353,6 +366,12 @@ static int compat_fillonedir(struct dir_context *ctx, const char *name,
 	if (buf->result)
 		return -EINVAL;
 	d_ino = ino;
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	if (likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC) && susfs_sus_ino_for_filldir64(ino)) {
+		return 0;
+	}
+#endif
+	
 	if (sizeof(d_ino) < sizeof(ino) && d_ino != ino) {
 		buf->result = -EOVERFLOW;
 		return -EOVERFLOW;
