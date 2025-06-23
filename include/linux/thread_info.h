@@ -112,11 +112,15 @@ static inline void check_object_size(const void *ptr, unsigned long n,
 				     bool to_user)
 { }
 #endif /* CONFIG_HARDENED_USERCOPY */
-
+#ifndef CONFIG_KPM
 extern void __compiletime_error("copy source size is too small")
 __bad_copy_from(void);
 extern void __compiletime_error("copy destination size is too small")
 __bad_copy_to(void);
+#else
+static inline void __bad_copy_to(void) {}
+static inline void __bad_copy_from(void) {}
+#endif
 
 static inline void copy_overflow(int size, unsigned long count)
 {
