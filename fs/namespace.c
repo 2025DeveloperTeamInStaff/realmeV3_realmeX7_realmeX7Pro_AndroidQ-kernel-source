@@ -42,7 +42,6 @@ static DEFINE_IDA(susfs_mnt_group_ida);
 static int susfs_mnt_id_start = DEFAULT_SUS_MNT_ID;
 static int susfs_mnt_group_start = DEFAULT_SUS_MNT_GROUP_ID;
 
-#define CL_ZYGOTE_COPY_MNT_NS BIT(24) /* used by copy_mnt_ns() */
 #define CL_COPY_MNT_NS BIT(25) /* used by copy_mnt_ns() */
 #endif
 
@@ -1208,6 +1207,7 @@ bypass_orig_flow:
 	if (susfs_is_current_zygote_domain()) {
 		mnt_ns = current->nsproxy->mnt_ns;
 		if (mnt_ns) {
+			get_mnt_ns(mnt_ns);
 			rcu_read_lock();
 			mnt_id = list_first_entry(&mnt_ns->list, struct mount, mnt_list)->mnt_id;
 			list_for_each_entry_rcu(m, &mnt_ns->list, mnt_list) {
@@ -1218,6 +1218,7 @@ bypass_orig_flow:
 			WRITE_ONCE(mnt->mnt.susfs_mnt_id_backup, READ_ONCE(mnt->mnt_id));
 			WRITE_ONCE(mnt->mnt_id, READ_ONCE(mnt_id));
 			rcu_read_unlock();
+			put_mnt_ns(mnt_ns);
 		}
 	}
 #endif
@@ -1345,12 +1346,14 @@ bypass_orig_flow:
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	// - If caller process is zygote, then it is a normal mount, so we calculate the next available
-	//   fake mnt_id for this mount, but there is one situation that the previous mount is not
-	//   attached to the current mnt_ns so that it will fail to calculate the correct fake mnt_id.
+	//   fake mnt_id for this mount, but there is one situation that the previous clone_mnt is not
+	//   yet attached to the current mnt_ns during copy_tree() so that it will fail to calculate
+	//   the correct fake mnt_id.
 	// - Currently we have a tmep fix for this in copy_tree(), but maybe not reliable for other devices
-	if (likely(is_current_zygote_domain) && !(flag & CL_ZYGOTE_COPY_MNT_NS)) {
+	if (likely(is_current_zygote_domain) && !(flag & CL_COPY_MNT_NS)) {
 		mnt_ns = current->nsproxy->mnt_ns;
 		if (mnt_ns) {
+			get_mnt_ns(mnt_ns);
 			rcu_read_lock();
 			mnt_id = list_first_entry(&mnt_ns->list, struct mount, mnt_list)->mnt_id;
 			list_for_each_entry_rcu(m, &mnt_ns->list, mnt_list) {
@@ -1361,6 +1364,7 @@ bypass_orig_flow:
 			WRITE_ONCE(mnt->mnt.susfs_mnt_id_backup, READ_ONCE(mnt->mnt_id));
 			WRITE_ONCE(mnt->mnt_id, READ_ONCE(mnt_id));
 			rcu_read_unlock();
+			put_mnt_ns(mnt_ns);
 		}
 	}
 #endif
@@ -2030,6 +2034,9 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 					int flag)
 {
 	struct mount *res, *p, *q, *r, *parent;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
+#endif
 
 	if (!(flag & CL_COPY_UNBINDABLE) && IS_MNT_UNBINDABLE(mnt))
 		return ERR_PTR(-EINVAL);
@@ -2046,6 +2053,9 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 	p = mnt;
 	list_for_each_entry(r, &mnt->mnt_mounts, mnt_child) {
 		struct mount *s;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+		int attach_mnt_count = 0;
+#endif
 		if (!is_subdir(r->mnt_mountpoint, dentry))
 			continue;
 
@@ -2075,16 +2085,18 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 			q = clone_mnt(p, p->mnt.mnt_root, flag);
 			if (IS_ERR(q))
 				goto out;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+			if (is_current_zygote_domain &&
+				!(flag & CL_COPY_MNT_NS) &&
+				q->mnt_id < DEFAULT_SUS_MNT_ID)
+			{
+				attach_mnt_count++;
+				q->mnt_id += attach_mnt_count;
+			}
+#endif
 			lock_mount_hash();
 			list_add_tail(&q->mnt_list, &res->mnt_list);
 			attach_mnt(q, parent, p->mnt_mp);
-#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT	
-			// This is a temp fix to force re-assign the fake mnt_id for a specific mount during clone_mnt(),
-			// not sure what will happen on other devices.
-			if (unlikely(q->mnt_id <= q->mnt_parent->mnt_id)) {
-				q->mnt_id = q->mnt_parent->mnt_id + 1;
-			}
-#endif
 			unlock_mount_hash();
 		}
 	}
@@ -3263,10 +3275,6 @@ struct mnt_namespace *copy_mnt_ns(unsigned long flags, struct mnt_namespace *ns,
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	// Always let clone_mnt() in copy_tree() know it is from copy_mnt_ns()
 	copy_flags |= CL_COPY_MNT_NS;
-	if (is_zygote_pid) {
-		// Let clone_mnt() in copy_tree() know copy_mnt_ns() is run by zygote process
-		copy_flags |= CL_ZYGOTE_COPY_MNT_NS;
-	}
 #endif
 	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
 	if (IS_ERR(new)) {
