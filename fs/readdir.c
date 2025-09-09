@@ -401,6 +401,7 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
 			return -EINTR;
 		if (__put_user(offset, &dirent->d_off))
 			goto efault;
+	}
 #ifdef CONFIG_KSU_SUSFS_SUS_PATH
 		if (buf->is_base_dentry_android_data_root_dir) {
 			if (susfs_is_sus_android_data_d_name_found(name)) {
@@ -423,7 +424,6 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
 		iput(inode);
 orig_flow:
 #endif
-	}
 	dirent = buf->current_dir;
 	if (__put_user(ino, &dirent->d_ino))
 		goto efault;
