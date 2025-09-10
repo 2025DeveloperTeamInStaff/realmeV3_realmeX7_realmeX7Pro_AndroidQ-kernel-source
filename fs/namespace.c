@@ -1252,6 +1252,9 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 	struct mount *mnt;
 	int err;
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	struct mount *m;
+	struct mnt_namespace *mnt_ns;
+	int mnt_id;
 	bool is_current_ksu_domain = susfs_is_current_ksu_domain();
 	bool is_current_zygote_domain = susfs_is_current_zygote_domain();
 
