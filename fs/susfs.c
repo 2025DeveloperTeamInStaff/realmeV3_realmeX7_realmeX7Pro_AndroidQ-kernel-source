@@ -146,6 +146,7 @@ int susfs_add_sus_path(struct st_susfs_sus_path* __user user_info) {
 	}
 	inode = d_inode(path.dentry);
 
+  tmp_buf = kmalloc(PAGE_SIZE, GFP_KERNEL);
 	if (!tmp_buf) {
 		err = -ENOMEM;
 		goto out_path_put_path;
