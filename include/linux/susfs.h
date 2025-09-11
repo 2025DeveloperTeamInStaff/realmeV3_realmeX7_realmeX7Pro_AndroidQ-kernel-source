@@ -195,6 +195,7 @@ int susfs_get_sus_su_working_mode(void);
 int susfs_sus_su(struct st_sus_su* __user user_info);
 #endif
 int susfs_get_enabled_features(char __user* buf, size_t bufsize);
+void susfs_set_avc_log_spoofing(bool enabled);
 /* susfs_init */
 void susfs_init(void);
 
