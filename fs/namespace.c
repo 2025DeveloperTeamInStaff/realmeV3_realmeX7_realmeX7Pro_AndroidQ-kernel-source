@@ -40,8 +40,8 @@ extern bool susfs_is_boot_completed_triggered;
 
 
 static DEFINE_IDA(susfs_ksu_mnt_group_ida);
-static int susfs_mnt_id_start = DEFAULT_SUS_MNT_ID;
-static int susfs_mnt_group_start = DEFAULT_SUS_MNT_GROUP_ID;
+static int susfs_mnt_id_start = DEFAULT_KSU_MNT_ID;
+static int susfs_mnt_group_start = DEFAULT_KSU_MNT_GROUP_ID;
 #define CL_COPY_MNT_NS BIT(25) /* used by copy_mnt_ns() */
 #endif
 
@@ -187,10 +187,10 @@ static int mnt_alloc_group_id(struct mount *mnt)
 	int res;
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-	if (!susfs_is_boot_completed_triggered && mnt->mnt_id >= DEFAULT_SUS_MNT_ID) {
+	if (!susfs_is_boot_completed_triggered && mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
 		if (!ida_pre_get(&susfs_mnt_group_ida, GFP_KERNEL))
 			return -ENOMEM;
-		// If so, assign a sus mnt_group id DEFAULT_SUS_MNT_GROUP_ID from susfs_mnt_group_ida
+		// If so, assign a sus mnt_group id DEFAULT_KSU_MNT_GROUP_ID from susfs_mnt_group_ida
 		res = ida_get_new_above(&susfs_mnt_group_ida,
 					susfs_mnt_group_start,
 					&mnt->mnt_group_id);
@@ -228,7 +228,7 @@ void mnt_release_group_id(struct mount *mnt)
 	 *   so it is fine.
 	 */
 
-	if (!susfs_is_boot_completed_triggered && id >= DEFAULT_SUS_MNT_GROUP_ID) {
+	if (!susfs_is_boot_completed_triggered && id >= DEFAULT_KSU_MNT_GROUP_ID) {
 		ida_remove(&susfs_mnt_group_ida, id);
 		if (susfs_mnt_group_start > id)
 			susfs_mnt_group_start = id;
@@ -321,7 +321,7 @@ static struct mount *susfs_reuse_sus_vfsmnt(const char *name, int orig_mnt_id)
 		INIT_LIST_HEAD(&mnt->mnt_slave);
 		INIT_HLIST_NODE(&mnt->mnt_mp_list);
 		INIT_LIST_HEAD(&mnt->mnt_umounting);
-		INIT_HLIST_HEAD(&mnt->mnt_stuck_children);
+		init_fs_pin(&mnt->mnt_umount, drop_mountpoint);
 	}
 	return mnt;
 
@@ -372,7 +372,7 @@ static struct mount *susfs_alloc_sus_vfsmnt(const char *name)
 		INIT_LIST_HEAD(&mnt->mnt_slave);
 		INIT_HLIST_NODE(&mnt->mnt_mp_list);
 		INIT_LIST_HEAD(&mnt->mnt_umounting);
-		INIT_HLIST_HEAD(&mnt->mnt_stuck_children);
+		init_fs_pin(&mnt->mnt_umount, drop_mountpoint);
 	}
 	return mnt;
 
@@ -385,8 +385,6 @@ out_free_cache:
 	return NULL;
 }
 #endif
-
-
 
 static struct mount *alloc_vfsmnt(const char *name)
 {
@@ -3162,8 +3160,8 @@ long do_mount(const char *dev_name, const char __user *dir_name,
 	// For both Legacy and Magic Mount KernelSU
 	if (!retval && susfs_is_auto_add_sus_ksu_default_mount_enabled &&
 			(!(flags & (MS_REMOUNT | MS_BIND | MS_SHARED | MS_PRIVATE | MS_SLAVE | MS_UNBINDABLE)))) {
-		if (!susfs_is_boot_completed_triggered && !ret && susfs_is_auto_add_sus_ksu_default_mount_enabled && susfs_is_current_ksu_domain()) {
-					susfs_auto_add_sus_ksu_default_mount(to_pathname);
+		if (!susfs_is_boot_completed_triggered && !retval && susfs_is_auto_add_sus_ksu_default_mount_enabled && susfs_is_current_ksu_domain()) {
+					susfs_auto_add_sus_ksu_default_mount(dir_name);
 			}
 
 	}
@@ -3878,11 +3876,6 @@ void susfs_reorder_mnt_id(void) {
 	put_mnt_ns(mnt_ns);
 }
 #endif
-#ifdef CONFIG_KSU_SUSFS
-bool susfs_is_mnt_devname_ksu(struct path *path) {
-	struct mount *mnt;
-}
-#endif
 
 #ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
 extern void susfs_try_umount_all(uid_t uid);
@@ -3895,7 +3888,7 @@ void susfs_run_try_umount_for_current_mnt_ns(void) {
 	namespace_lock();
 	list_for_each_entry(mnt, &mnt_ns->list, mnt_list) {
 		// Change the sus mount to be private
-		if (mnt->mnt_id >= DEFAULT_SUS_MNT_ID) {
+		if (mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
 			change_mnt_propagation(mnt, MS_PRIVATE);
 		}
 	}
