@@ -188,10 +188,10 @@ static int mnt_alloc_group_id(struct mount *mnt)
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	if (!susfs_is_boot_completed_triggered && mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
-		if (!ida_pre_get(&susfs_mnt_group_ida, GFP_KERNEL))
+		if (!ida_pre_get(&susfs_ksu_mnt_group_ida, GFP_KERNEL))
 			return -ENOMEM;
-		// If so, assign a sus mnt_group id DEFAULT_KSU_MNT_GROUP_ID from susfs_mnt_group_ida
-		res = ida_get_new_above(&susfs_mnt_group_ida,
+		// If so, assign a sus mnt_group id DEFAULT_KSU_MNT_GROUP_ID from susfs_ksu_mnt_group_ida
+		res = ida_get_new_above(&susfs_ksu_mnt_group_ida,
 					susfs_mnt_group_start,
 					&mnt->mnt_group_id);
 		if (!res)
@@ -229,7 +229,7 @@ void mnt_release_group_id(struct mount *mnt)
 	 */
 
 	if (!susfs_is_boot_completed_triggered && id >= DEFAULT_KSU_MNT_GROUP_ID) {
-		ida_remove(&susfs_mnt_group_ida, id);
+		ida_remove(&susfs_ksu_mnt_group_ida, id);
 		if (susfs_mnt_group_start > id)
 			susfs_mnt_group_start = id;
 		mnt->mnt_group_id = 0;
