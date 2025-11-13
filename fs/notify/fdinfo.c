@@ -112,11 +112,9 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 		 * used only internally to the kernel.
 		 */
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-		if (likely(susfs_is_current_non_root_user_app_proc()) &&
-				unlikely(inode->i_mapping->flags & BIT_SUS_KSTAT)) {
 		mnt = real_mount(file->f_path.mnt);
 		if (likely(susfs_is_current_proc_umounted()) &&
-					mnt->mnt_id >= DEFAULT_KSU_MNT_ID)
+				mnt->mnt_id >= DEFAULT_KSU_MNT_ID)
 		{
 			struct path path;
 			char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
