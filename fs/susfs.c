@@ -462,93 +462,58 @@ bool susfs_is_inode_sus_path(struct inode *inode) {
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 bool susfs_hide_sus_mnts_for_all_procs = true; // hide sus mounts for all processes by default
 static LIST_HEAD(LH_SUS_MOUNT);
-static void susfs_update_sus_mount_inode(char *target_pathname) {
-	struct mount *mnt = NULL;
-	struct path p;
-	struct inode *inode = NULL;
-	int err = 0;
-
-	err = kern_path(target_pathname, LOOKUP_FOLLOW, &p);
-	if (err) {
-		SUSFS_LOGE("Failed opening file '%s'\n", target_pathname);
-		return;
-	}
-
-	/* It is important to check if the mount has a legit peer group id, if so we cannot add them to sus_mount,
-	 * since there are chances that the mount is a legit mountpoint, and it can be misued by other susfs functions in future.
-	 * And by doing this it won't affect the sus_mount check as other susfs functions check by mnt->mnt_id
-	 * instead of BIT_SUS_MOUNT.
-	 */
-	mnt = real_mount(p.mnt);
-	if (mnt->mnt_group_id > 0 && // 0 means no peer group
-		mnt->mnt_group_id < DEFAULT_KSU_MNT_GROUP_ID) {
-		SUSFS_LOGE("skip setting SUS_MOUNT inode state for path '%s' since its source mount has a legit peer group id\n", target_pathname);
-		return;
-	}
-
-	inode = d_inode(p.dentry);
-	if (!inode) {
-		path_put(&p);
-		SUSFS_LOGE("inode is NULL\n");
-		return;
-	}
-
-	if (!(inode->i_mapping->flags & BIT_SUS_MOUNT)) {
-		spin_lock(&inode->i_lock);
-		set_bit(AS_FLAGS_SUS_MOUNT, &inode->i_mapping->flags);
-		spin_unlock(&inode->i_lock);
-	}
-	path_put(&p);
-}
+extern void susfs_assign_fake_mnt_id(struct mount *mnt);
 
 void susfs_add_sus_mount(void __user **user_info) {
 	struct st_susfs_sus_mount info = {0};
-	struct st_susfs_sus_mount_list *cursor = NULL, *temp = NULL;
-	struct st_susfs_sus_mount_list *new_list = NULL;
+	struct mount *mnt = NULL;
+	struct path p;
+	struct inode *inode = NULL;
 
 	if (copy_from_user(&info, (struct st_susfs_sus_mount __user*)*user_info, sizeof(info))) {
 		info.err = -EFAULT;
 		goto out_copy_to_user;
 	}
 
-#if defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64)
-#ifdef CONFIG_MIPS
-	info.target_dev = new_decode_dev(info.target_dev);
-#else
-	info.target_dev = huge_decode_dev(info.target_dev);
-#endif /* CONFIG_MIPS */
-#else
-	info.target_dev = old_decode_dev(info.target_dev);
-#endif /* defined(__ARCH_WANT_STAT64) || defined(__ARCH_WANT_COMPAT_STAT64) */
-
-	list_for_each_entry_safe(cursor, temp, &LH_SUS_MOUNT, list) {
-		if (unlikely(!strcmp(cursor->info.target_pathname, info.target_pathname))) {
-			spin_lock(&susfs_spin_lock);
-			memcpy(&cursor->info, &info, sizeof(info));
-			susfs_update_sus_mount_inode(cursor->info.target_pathname);
-			SUSFS_LOGI("target_pathname: '%s', target_dev: '%lu', is successfully updated to LH_SUS_MOUNT\n",
-						cursor->info.target_pathname, cursor->info.target_dev);
-			spin_unlock(&susfs_spin_lock);
-			goto out_copy_to_user;
-		}
-	}
-
-	new_list = kmalloc(sizeof(struct st_susfs_sus_mount_list), GFP_KERNEL);
-	if (!new_list) {
-		info.err = -ENOMEM;
+	info.err = kern_path(info.target_pathname, LOOKUP_FOLLOW, &p);
+	if (info.err) {
+		SUSFS_LOGE("Failed opening file '%s'\n", info.target_pathname);
 		goto out_copy_to_user;
 	}
 
-	memcpy(&new_list->info, &info, sizeof(info));
-	susfs_update_sus_mount_inode(new_list->info.target_pathname);
+	mnt = real_mount(p.mnt);
+	if (!(mnt->mnt.mnt_flags & MNT_SHARED)) {
+		SUSFS_LOGE("mnt '%s' is not shared\n", info.target_pathname);
+		info.err = -EINVAL;
+		goto out_path_put_path;
+	}
 
-	INIT_LIST_HEAD(&new_list->list);
-	spin_lock(&susfs_spin_lock);
-	list_add_tail(&new_list->list, &LH_SUS_MOUNT);
-	SUSFS_LOGI("target_pathname: '%s', target_dev: '%lu', is successfully added to LH_SUS_MOUNT\n",
-				new_list->info.target_pathname, new_list->info.target_dev);
-	spin_unlock(&susfs_spin_lock);
+	if (mnt->mnt_id >= DEFAULT_KSU_MNT_ID) {
+		SUSFS_LOGE("mnt '%s' has been assigned a fake mnt_id already\n", info.target_pathname);
+		info.err = -EINVAL;
+		goto out_path_put_path;
+	}
+
+	SUSFS_LOGI("Assigning fake mnt_id and mnt_group_id for mnt '%s'\n", info.target_pathname);
+	susfs_assign_fake_mnt_id(mnt);
+
+	inode = d_inode(p.dentry);
+	if (!inode) {
+		SUSFS_LOGE("inode is NULL\n");
+		info.err = -EINVAL;
+		goto out_path_put_path;
+	}
+
+	if (!(inode->i_mapping->flags & BIT_SUS_MOUNT)) {
+		SUSFS_LOGI("mnt '%s', is flagged as BIT_SUS_MOUNT\n", info.target_pathname);
+		spin_lock(&inode->i_lock);
+		set_bit(AS_FLAGS_SUS_MOUNT, &inode->i_mapping->flags);
+		spin_unlock(&inode->i_lock);
+	}
+
 	info.err = 0;
+out_path_put_path:
+	path_put(&p);
 out_copy_to_user:
 	if (copy_to_user(&((struct st_susfs_sus_mount __user*)*user_info)->err, &info.err, sizeof(info.err))) {
 		info.err = -EINVAL;
