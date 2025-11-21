@@ -28,7 +28,7 @@
 #include <linux/fsnotify.h>
 #include <linux/seq_file.h>
 
-#ifdef CONFIG_KSU_SUSFS_SUS_SU
+#ifdef CONFIG_KSU_SUSFS
 #include <linux/susfs_def.h>
 #endif
 
@@ -606,6 +606,10 @@ struct dentry *devpts_pty_new(struct pts_fs_info *fsi, int index, void *priv)
 	return dentry;
 }
 
+#ifdef CONFIG_KSU_SUSFS
+extern int ksu_handle_devpts(struct inode*);
+#endif
+
 /**
  * devpts_get_priv -- get private data for a slave
  * @pts_inode: inode of the slave
@@ -614,14 +618,11 @@ struct dentry *devpts_pty_new(struct pts_fs_info *fsi, int index, void *priv)
  */
 void *devpts_get_priv(struct dentry *dentry)
 {
-#ifdef CONFIG_KSU_SUSFS_SUS_SU
+#ifdef CONFIG_KSU_SUSFS
 	if (likely(susfs_is_current_proc_umounted())) {
 		goto orig_flow;
 	}
-
-	if (likely(ksu_devpts_hook)) {
-		ksu_handle_devpts(dentry->d_inode);
-	}
+	ksu_handle_devpts(dentry->d_inode);
 orig_flow:
 #endif
 
