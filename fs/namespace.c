@@ -40,6 +40,7 @@ extern bool susfs_is_boot_completed_triggered;
 
 
 static DEFINE_IDA(susfs_ksu_mnt_group_ida);
+static atomic64_t susfs_ksu_mounts = ATOMIC64_INIT(0);
 static int susfs_mnt_id_start = DEFAULT_KSU_MNT_ID;
 static int susfs_mnt_group_start = DEFAULT_KSU_MNT_GROUP_ID;
 #define CL_COPY_MNT_NS BIT(25) /* used by copy_mnt_ns() */
@@ -1237,6 +1238,7 @@ vfs_kern_mount(struct file_system_type *type, int flags, const char *name, void 
 	// We keep checking for ksu process
 	if (!susfs_is_boot_completed_triggered && susfs_is_current_ksu_domain()) {
     	mnt = susfs_alloc_sus_vfsmnt(name);
+		atomic64_add(1, &susfs_ksu_mounts);
 		goto bypass_orig_flow;
 	}
 #endif
@@ -3860,6 +3862,11 @@ void susfs_reorder_mnt_id(void) {
 	int first_mnt_id = 0;
 
 	if (!mnt_ns) {
+		return;
+	}
+
+	// Do not reorder the mnt_id if there is no any ksu mount at all
+	if (atomic64_read(&susfs_ksu_mounts) == 0) {
 		return;
 	}
 
